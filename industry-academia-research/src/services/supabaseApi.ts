@@ -311,7 +311,7 @@ const supabaseApi = {
         remark: data.remark || '',
         lead_user_name: data.lead_user_name || '',
       };
-      if (data.deadline) insertData.deadline = data.deadline;
+      if (data.deadline) insertData.deadline = data.deadline.replace(' ', 'T') + ':00';
       if (userId) insertData.created_by = userId;
       const { data: inserted, error } = await supabase.from('projects').insert(insertData).select().single();
       if (error) return wrap(null, error.message);

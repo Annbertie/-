@@ -115,17 +115,25 @@ export default function ProjectList() {
   const handleCreate = async (values: Record<string, unknown>) => {
     setSubmitting(true);
     try {
-      const payload = {
-        ...values,
-        deadline: values.deadline ? dayjs(values.deadline as string).format('YYYY-MM-DD HH:mm') : undefined,
+      const payload: Record<string, unknown> = {
+        project_name: values.project_name,
+        project_code: values.project_code,
+        company_name: values.company_name,
+        lead_user_name: values.lead_user_name || '',
+        remark: values.remark || '',
       };
+      if (values.deadline) {
+        payload.deadline = dayjs(values.deadline as string).format('YYYY-MM-DD HH:mm');
+      }
       await api.post('/projects', payload);
       message.success('创建项目成功');
       setIsModalOpen(false);
       form.resetFields();
       fetchProjects();
     } catch (error: any) {
-      message.error(error?.response?.data?.error || '创建项目失败');
+      console.error('创建项目错误:', error);
+      const errMsg = error?.response?.data?.error || error?.message || '创建项目失败';
+      message.error(errMsg);
     } finally {
       setSubmitting(false);
     }
