@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Form, Input, Button, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, ExperimentOutlined } from '@ant-design/icons';
-import api from '../services/api';
+import { supabase } from '../services/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import type { User } from '../types';
 
@@ -13,11 +13,6 @@ interface LoginFormValues {
   password: string;
 }
 
-interface LoginResponse {
-  token: string;
-  user: User;
-}
-
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -26,16 +21,38 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: LoginFormValues) => {
     setLoading(true);
     try {
-      const response = await api.post<{ data: LoginResponse }>('/auth/login', {
-        username: values.username,
+      // Supabase Auth 使用邮箱登录，将输入视为邮箱
+      const email = values.username.includes('@')
+        ? values.username
+        : `${values.username}@placeholder.local`;
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
         password: values.password,
       });
-      const { token, user } = response.data.data;
-      login(token, user);
+
+      if (error) throw error;
+
+      const session = data.session;
+      if (!session) throw new Error('登录失败：未获取到会话');
+
+      // 登录成功后从 profiles 表获取用户额外信息（role, username, department 等）
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      const userData: User = profile as User;
+      login(session.access_token, userData);
       message.success('登录成功');
       navigate('/');
     } catch (error) {
-      message.error('登录失败，请检查用户名和密码');
+      const errMessage =
+        error instanceof Error ? error.message : '登录失败，请检查邮箱和密码';
+      message.error(errMessage);
     } finally {
       setLoading(false);
     }
@@ -71,9 +88,9 @@ const Login: React.FC = () => {
         >
           <Form.Item
             name="username"
-            rules={[{ required: true, message: '请输入用户名' }]}
+            rules={[{ required: true, message: '请输入邮箱' }]}
           >
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
+            <Input prefix={<UserOutlined />} placeholder="邮箱" />
           </Form.Item>
           <Form.Item
             name="password"
