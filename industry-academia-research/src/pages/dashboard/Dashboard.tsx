@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
 
     const loadProjects = async () => {
       try {
-        const res = await api.get('/projects?page=1&pageSize=5');
+        const res = await api.get('/projects', { params: { page: 1, pageSize: 5 } });
         if (!mounted) return;
         const list: Project[] = Array.isArray(res.data.data)
           ? res.data.data

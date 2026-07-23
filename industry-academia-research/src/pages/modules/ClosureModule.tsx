@@ -95,7 +95,7 @@ export default function ClosureModule({ projectId, onRefresh }: Props) {
     }
     try {
       await api.post(`/project-closures/${closure.id}/submit`);
-      message.success('结题提交成功，项目已标记为已完成');
+      message.success('结题提交成功');
       fetchData();
       onRefresh();
     } catch (error: any) {

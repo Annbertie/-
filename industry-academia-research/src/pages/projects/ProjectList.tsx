@@ -97,9 +97,11 @@ export default function ProjectList() {
     setFilterStage(undefined);
   };
 
-  const handleSearch = () => {
+  const handleSearch = (searchValue?: string) => {
+    if (searchValue !== undefined) {
+      setKeyword(searchValue);
+    }
     setPage(1);
-    fetchProjects();
   };
 
   const handleReset = () => {
