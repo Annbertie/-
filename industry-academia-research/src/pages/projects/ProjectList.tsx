@@ -17,7 +17,7 @@ import {
 import { PlusOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import type { Project } from '../../types';
 
 interface ModificationRequest {

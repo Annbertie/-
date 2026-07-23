@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import type { ModificationRequest } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 

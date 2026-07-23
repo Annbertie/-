@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import { PlusOutlined, CheckOutlined, MessageOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import type { Feedback, Announcement } from '../../types';
 
 

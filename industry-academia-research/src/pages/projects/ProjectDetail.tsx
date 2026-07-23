@@ -12,7 +12,7 @@ import {
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import type { Project, ProjectProgress } from '../../types';
 
 import ContractModule from '../modules/ContractModule';

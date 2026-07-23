@@ -24,7 +24,7 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import type { Member } from '../../types';
 
 export default function AdminMembers() {

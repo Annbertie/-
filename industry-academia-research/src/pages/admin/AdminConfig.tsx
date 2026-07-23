@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { EditOutlined, DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import type { Config, Log } from '../../types';
 
 

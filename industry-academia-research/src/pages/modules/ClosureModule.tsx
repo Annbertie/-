@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import { LockOutlined, EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import FileUpload from '../../components/FileUpload';
 import type { ProjectClosure, ProjectProgress } from '../../types';
 

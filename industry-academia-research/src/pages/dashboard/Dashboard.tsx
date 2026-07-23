@@ -7,7 +7,7 @@ import {
   NotificationOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import type { Project, Announcement } from '../../types';
 import dayjs from 'dayjs';
 

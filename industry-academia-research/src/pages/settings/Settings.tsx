@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { Card, Form, Input, Button, Row, Col, Table, Tag, message, Spin, Typography } from 'antd';
 import { SaveOutlined, LockOutlined, FormOutlined } from '@ant-design/icons';
-import api from '../../services/api';
+import api from '../../services/supabaseApi';
 import { useAuth } from '../../contexts/AuthContext';
 import type { ModificationRequest } from '../../types';
 import dayjs from 'dayjs';
