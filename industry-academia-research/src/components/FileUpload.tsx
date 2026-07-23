@@ -27,7 +27,9 @@ export default function FileUpload({ value, onChange, disabled }: FileUploadProp
 
     setUploading(true);
     try {
-      const fileName = `${Date.now()}_${file.name}`;
+      // 对文件名进行编码，去掉空格和特殊字符
+      const safeName = file.name.replace(/\s+/g, '_').replace(/[^\w.\-]/g, '');
+      const fileName = `${Date.now()}_${safeName}`;
       const { data, error } = await supabase.storage
         .from('uploads')
         .upload(fileName, file, { cacheControl: '3600', upsert: false });
