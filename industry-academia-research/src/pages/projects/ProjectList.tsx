@@ -124,8 +124,8 @@ export default function ProjectList() {
       setIsModalOpen(false);
       form.resetFields();
       fetchProjects();
-    } catch (error) {
-      message.error('创建项目失败');
+    } catch (error: any) {
+      message.error(error?.response?.data?.error || '创建项目失败');
     } finally {
       setSubmitting(false);
     }

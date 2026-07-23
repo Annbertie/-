@@ -303,7 +303,17 @@ const supabaseApi = {
 
     // ---- 创建项目 ----
     if (url === '/projects') {
-      const { data: inserted, error } = await supabase.from('projects').insert({ ...data, created_by: userId }).select().single();
+      const insertData: Record<string, unknown> = {
+        project_code: data.project_code,
+        project_name: data.project_name,
+        company_name: data.company_name,
+        status: 'active',
+        remark: data.remark || '',
+        lead_user_name: data.lead_user_name || '',
+      };
+      if (data.deadline) insertData.deadline = data.deadline;
+      if (userId) insertData.created_by = userId;
+      const { data: inserted, error } = await supabase.from('projects').insert(insertData).select().single();
       if (error) return wrap(null, error.message);
       await logOperation(userId!, userName, 'projects', 'create', `创建项目 ${data.project_name}`, inserted?.id);
       return wrap(inserted);
