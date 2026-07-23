@@ -342,37 +342,63 @@ ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.system_configs ENABLE ROW LEVEL SECURITY;
 
 -- profiles: 所有登录用户可以查看所有 profile，但只能修改自己的
+DROP POLICY IF EXISTS "profiles_select" ON public.profiles;
 CREATE POLICY "profiles_select" ON public.profiles FOR SELECT USING (true);
+DROP POLICY IF EXISTS "profiles_update" ON public.profiles;
 CREATE POLICY "profiles_update" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+DROP POLICY IF EXISTS "profiles_insert" ON public.profiles;
 CREATE POLICY "profiles_insert" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- projects: 所有登录用户可以查看和创建项目
+DROP POLICY IF EXISTS "projects_select" ON public.projects;
 CREATE POLICY "projects_select" ON public.projects FOR SELECT USING (true);
+DROP POLICY IF EXISTS "projects_insert" ON public.projects;
 CREATE POLICY "projects_insert" ON public.projects FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "projects_update" ON public.projects;
 CREATE POLICY "projects_update" ON public.projects FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "projects_delete" ON public.projects;
 CREATE POLICY "projects_delete" ON public.projects FOR DELETE USING (true);
 
 -- project_members
+DROP POLICY IF EXISTS "project_members_select" ON public.project_members;
 CREATE POLICY "project_members_select" ON public.project_members FOR SELECT USING (true);
+DROP POLICY IF EXISTS "project_members_insert" ON public.project_members;
 CREATE POLICY "project_members_insert" ON public.project_members FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "project_members_delete" ON public.project_members;
 CREATE POLICY "project_members_delete" ON public.project_members FOR DELETE USING (true);
 
 -- 所有业务模块表：登录用户都可以增删改查（通过应用层控制权限）
+DROP POLICY IF EXISTS "contract_reviews_all" ON public.contract_reviews;
 CREATE POLICY "contract_reviews_all" ON public.contract_reviews FOR ALL USING (true);
+DROP POLICY IF EXISTS "contract_confirmations_all" ON public.contract_confirmations;
 CREATE POLICY "contract_confirmations_all" ON public.contract_confirmations FOR ALL USING (true);
+DROP POLICY IF EXISTS "contract_receipts_all" ON public.contract_receipts;
 CREATE POLICY "contract_receipts_all" ON public.contract_receipts FOR ALL USING (true);
+DROP POLICY IF EXISTS "contract_stamps_all" ON public.contract_stamps;
 CREATE POLICY "contract_stamps_all" ON public.contract_stamps FOR ALL USING (true);
+DROP POLICY IF EXISTS "contract_shipments_all" ON public.contract_shipments;
 CREATE POLICY "contract_shipments_all" ON public.contract_shipments FOR ALL USING (true);
+DROP POLICY IF EXISTS "payments_all" ON public.payments;
 CREATE POLICY "payments_all" ON public.payments FOR ALL USING (true);
+DROP POLICY IF EXISTS "fund_claims_all" ON public.fund_claims;
 CREATE POLICY "fund_claims_all" ON public.fund_claims FOR ALL USING (true);
+DROP POLICY IF EXISTS "invoices_all" ON public.invoices;
 CREATE POLICY "invoices_all" ON public.invoices FOR ALL USING (true);
+DROP POLICY IF EXISTS "reimbursement_records_all" ON public.reimbursement_records;
 CREATE POLICY "reimbursement_records_all" ON public.reimbursement_records FOR ALL USING (true);
+DROP POLICY IF EXISTS "project_closures_all" ON public.project_closures;
 CREATE POLICY "project_closures_all" ON public.project_closures FOR ALL USING (true);
+DROP POLICY IF EXISTS "modification_requests_all" ON public.modification_requests;
 CREATE POLICY "modification_requests_all" ON public.modification_requests FOR ALL USING (true);
+DROP POLICY IF EXISTS "operation_logs_all" ON public.operation_logs;
 CREATE POLICY "operation_logs_all" ON public.operation_logs FOR ALL USING (true);
+DROP POLICY IF EXISTS "notifications_all" ON public.notifications;
 CREATE POLICY "notifications_all" ON public.notifications FOR ALL USING (true);
+DROP POLICY IF EXISTS "feedbacks_all" ON public.feedbacks;
 CREATE POLICY "feedbacks_all" ON public.feedbacks FOR ALL USING (true);
+DROP POLICY IF EXISTS "announcements_all" ON public.announcements;
 CREATE POLICY "announcements_all" ON public.announcements FOR ALL USING (true);
+DROP POLICY IF EXISTS "system_configs_all" ON public.system_configs;
 CREATE POLICY "system_configs_all" ON public.system_configs FOR ALL USING (true);
 
 -- =============================================
