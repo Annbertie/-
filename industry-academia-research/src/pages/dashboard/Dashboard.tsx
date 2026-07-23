@@ -40,7 +40,8 @@ const Dashboard: React.FC = () => {
 
     const loadProjects = async () => {
       try {
-        const res = await api.get('/projects', { params: { page: 1, pageSize: 5 } });
+        // 加载所有项目用于准确统计（不分页）
+        const res = await api.get('/projects', { params: { page: 1, pageSize: 1000 } });
         if (!mounted) return;
         const list: Project[] = Array.isArray(res.data.data)
           ? res.data.data
@@ -158,8 +159,8 @@ const Dashboard: React.FC = () => {
     setDashStatus(undefined);
     setDashStage(undefined);
     setSearching(false);
-    // 重新加载初始数据
-    api.get('/projects?page=1&pageSize=5').then((res) => {
+    // 重新加载初始数据（所有项目）
+    api.get('/projects', { params: { page: 1, pageSize: 1000 } }).then((res) => {
       const list: Project[] = Array.isArray(res.data.data)
         ? res.data.data
         : res.data.data?.list || [];
@@ -232,8 +233,8 @@ const Dashboard: React.FC = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={16}>
           <Card
-            title="最近项目"
-            extra={<Text type="secondary">{isSearching ? `共 ${dashTotal || projects.length} 条结果` : '最近5个项目'}</Text>}
+            title="项目列表"
+            extra={<Text type="secondary">{isSearching ? `共 ${dashTotal || projects.length} 条结果` : `共 ${projects.length} 个项目`}</Text>}
             styles={{ body: { padding: 0 } }}
           >
             <Space style={{ margin: '8px 16px', display: 'flex', flexWrap: 'wrap', gap: 8 }} size="small">
