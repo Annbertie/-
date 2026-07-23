@@ -320,8 +320,10 @@ const supabaseApi = {
 
     // ---- 创建成员 ----
     if (url === '/admin/members') {
+      // 统一使用实际注册邮箱，确保 profiles 和 auth 一致
+      const actualEmail = data?.email?.trim() || `${data?.username}@local.dev`;
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data?.email || `${data?.username}@local.dev`,
+        email: actualEmail,
         password: data?.password,
         options: { data: { username: data?.username, real_name: data?.real_name, role: data?.role || 'user' } },
       });
@@ -332,7 +334,7 @@ const supabaseApi = {
           username: data?.username,
           real_name: data?.real_name,
           phone: data?.phone,
-          email: data?.email,
+          email: actualEmail,
           department: data?.department,
           role: data?.role || 'user',
           status: 'active',
