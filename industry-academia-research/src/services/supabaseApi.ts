@@ -386,9 +386,14 @@ const supabaseApi = {
       // 如果是结题，更新项目状态
       if (tablePrefix === 'project-closures' && record?.project_id) {
         const progress = await calcProjectProgress(record.project_id);
-        await supabase.from('projects').update({
-          status: progress.overall === 100 ? 'completed' : 'active', updated_at: new Date().toISOString(),
+        const newStatus = progress.overall === 100 ? 'completed' : 'active';
+        const { error: updateErr } = await supabase.from('projects').update({
+          status: newStatus, updated_at: new Date().toISOString(),
         }).eq('id', record.project_id);
+        if (updateErr) {
+          console.error('更新项目状态失败:', updateErr.message);
+          return wrap(null, `结题提交成功，但更新项目状态失败: ${updateErr.message}`);
+        }
       }
 
       return wrap(null);
