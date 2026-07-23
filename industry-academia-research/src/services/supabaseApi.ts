@@ -84,22 +84,69 @@ async function calcProjectProgress(projectId: string) {
   let completedCount = 0;
 
   for (const stage of stages) {
-    const allDone = (await Promise.all(
+    const tableResults = await Promise.all(
       stage.tables.map(async (table) => {
-        const { count } = await supabase
+        const { count, error } = await supabase
           .from(table)
           .select('*', { count: 'exact', head: true })
           .eq('project_id', projectId)
           .eq('status', 'submitted');
+        if (error) {
+          console.error(`[calcProjectProgress] 查询 ${table} 失败:`, error.message);
+          return false;
+        }
         return (count || 0) > 0;
       })
-    )).every(Boolean);
+    );
+    const allDone = tableResults.every(Boolean);
     result[stage.key] = allDone;
     if (allDone) completedCount++;
   }
 
   const overall = Math.round((completedCount / stages.length) * 100);
   return { overall, ...result };
+}
+
+// 同步项目状态与当前阶段
+async function syncProjectStatus(projectId: string) {
+  try {
+    const progress = await calcProjectProgress(projectId);
+    const newStatus = progress.overall === 100 ? 'completed' : 'active';
+
+    // 确定当前阶段：找到第一个未完成的阶段
+    const stageOrder = ['contract', 'stamp', 'shipment', 'payment', 'expense', 'closure'];
+    const stageNames: Record<string, string> = {
+      contract: '合同管理',
+      stamp: '合同盖章',
+      shipment: '合同寄出',
+      payment: '打款开票',
+      expense: '经费报销',
+      closure: '结题',
+    };
+
+    let currentStage = '结题';
+    for (const key of stageOrder) {
+      if (!progress[key]) {
+        currentStage = stageNames[key];
+        break;
+      }
+    }
+
+    const { error } = await supabase.from('projects').update({
+      status: newStatus,
+      current_stage: currentStage,
+      updated_at: new Date().toISOString(),
+    }).eq('id', projectId);
+
+    if (error) {
+      console.error('[syncProjectStatus] 更新项目状态失败:', error.message);
+      return false;
+    }
+    return true;
+  } catch (e: any) {
+    console.error('[syncProjectStatus] 异常:', e.message);
+    return false;
+  }
 }
 
 // ===================== 核心 API 兼容层 =====================
@@ -327,7 +374,10 @@ const supabaseApi = {
           'reimbursement_records', 'project_closures',
         ];
         for (const table of initTables) {
-          await supabase.from(table).insert({ project_id: projectId, status: 'draft' }).select();
+          const { error: initErr } = await supabase.from(table).insert({ project_id: projectId, status: 'draft' }).select();
+          if (initErr) {
+            console.error(`[createProject] 初始化 ${table} 失败:`, initErr.message);
+          }
         }
       }
 
@@ -399,16 +449,11 @@ const supabaseApi = {
 
       await logOperation(userId!, userName, tablePrefix, 'submit', `提交 ${tablePrefix}`, record?.project_id);
 
-      // 如果是结题，更新项目状态
-      if (tablePrefix === 'project-closures' && record?.project_id) {
-        const progress = await calcProjectProgress(record.project_id);
-        const newStatus = progress.overall === 100 ? 'completed' : 'active';
-        const { error: updateErr } = await supabase.from('projects').update({
-          status: newStatus, updated_at: new Date().toISOString(),
-        }).eq('id', record.project_id);
-        if (updateErr) {
-          console.error('更新项目状态失败:', updateErr.message);
-          return wrap(null, `结题提交成功，但更新项目状态失败: ${updateErr.message}`);
+      // 每个模块提交后都同步项目状态和当前阶段
+      if (record?.project_id) {
+        const syncOk = await syncProjectStatus(record.project_id);
+        if (!syncOk) {
+          return wrap(null, '提交成功，但同步项目状态失败，请刷新页面重试');
         }
       }
 
