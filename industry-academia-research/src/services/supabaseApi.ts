@@ -315,6 +315,21 @@ const supabaseApi = {
       if (userId) insertData.created_by = userId;
       const { data: inserted, error } = await supabase.from('projects').insert(insertData).select().single();
       if (error) return wrap(null, error.message);
+
+      // 初始化所有模块的空记录（draft状态），确保进度计算正确
+      const projectId = inserted?.id;
+      if (projectId) {
+        const initTables = [
+          'contract_reviews', 'contract_confirmations', 'contract_receipts',
+          'contract_stamps', 'contract_shipments',
+          'payments', 'fund_claims', 'invoices',
+          'reimbursement_records', 'project_closures',
+        ];
+        for (const table of initTables) {
+          await supabase.from(table).insert({ project_id: projectId, status: 'draft' }).select();
+        }
+      }
+
       await logOperation(userId!, userName, 'projects', 'create', `创建项目 ${data.project_name}`, inserted?.id);
       return wrap(inserted);
     }
