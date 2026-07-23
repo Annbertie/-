@@ -308,6 +308,7 @@ const supabaseApi = {
         project_name: data.project_name,
         company_name: data.company_name,
         status: 'active',
+        current_stage: '合同管理',
         remark: data.remark || '',
         lead_user_name: data.lead_user_name || '',
       };
