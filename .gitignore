@@ -1,8 +1,52 @@
+# 依赖
 node_modules/
+
+# 构建产物
 dist/
+build/
+
+# 数据库文件（含用户数据）
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+
+# 上传文件（含用户上传的合同、截图等）
 uploads/
+
+# 环境变量和密钥（含数据库密钥、JWT密钥等敏感信息）
 .env
+.env.*
+!.env.example
+
+# 密钥和证书
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+*.jks
+
+# 本地缓存和工具配置
 .trae-cn/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志文件
+*.log
+logs/
+npm-debug.log*
+
+# PM2
+.pm2/
+
+# 测试和临时文件
+coverage/
+*.tsbuildinfo
