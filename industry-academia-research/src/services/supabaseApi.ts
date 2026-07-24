@@ -241,6 +241,16 @@ const supabaseApi = {
       return wrapList(data || []);
     }
 
+    // ---- 后台公告管理 ----
+    if (url === '/admin/announcements') {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) return wrap(null, error.message);
+      return wrapList(data || []);
+    }
+
     // ---- 系统配置 ----
     if (url === '/admin/configs') {
       const { data, error } = await supabase.from('system_configs').select('*');
