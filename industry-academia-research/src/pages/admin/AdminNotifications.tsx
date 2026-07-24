@@ -43,7 +43,8 @@ export default function AdminNotifications() {
   const fetchAnnouncements = useCallback(async () => {
     try {
       const res = await api.get('/admin/announcements');
-      setAnnouncements(res.data.data || []);
+      const data = res.data.data;
+      setAnnouncements(Array.isArray(data) ? data : data?.list || []);
     } catch (error) {
       message.error('加载公告列表失败');
     }
