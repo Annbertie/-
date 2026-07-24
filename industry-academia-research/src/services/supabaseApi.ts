@@ -503,12 +503,20 @@ const supabaseApi = {
     // ---- 更新 profile ----
     if (url === '/auth/profile') {
       // 如果修改了邮箱，同时更新 Supabase Auth 的登录邮箱
+      // 注意：updateUser 会触发邮箱确认流程，确认前旧邮箱仍可用于登录
       if (data?.email) {
         const { error: authError } = await supabase.auth.updateUser({ email: data.email });
-        if (authError) return wrap(null, `Auth邮箱更新失败: ${authError.message}`);
+        if (authError) {
+          // 邮件更新失败不阻断 profiles 更新，但给出提示
+          console.error('Auth邮箱更新失败:', authError.message);
+        }
       }
       const { error } = await supabase.from('profiles').update(data).eq('id', userId);
       if (error) return wrap(null, error.message);
+      // 如果 Auth 邮箱更新失败，给出明确提示
+      if (data?.email) {
+        return wrap({ ...data, emailNotice: '邮箱已更新，请检查新邮箱收件箱中的确认邮件，点击确认后即可用新邮箱登录。确认前仍可使用旧邮箱登录。' });
+      }
       return wrap(null);
     }
 
