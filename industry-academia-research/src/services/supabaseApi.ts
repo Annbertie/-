@@ -502,6 +502,11 @@ const supabaseApi = {
 
     // ---- 更新 profile ----
     if (url === '/auth/profile') {
+      // 如果修改了邮箱，同时更新 Supabase Auth 的登录邮箱
+      if (data?.email) {
+        const { error: authError } = await supabase.auth.updateUser({ email: data.email });
+        if (authError) return wrap(null, `Auth邮箱更新失败: ${authError.message}`);
+      }
       const { error } = await supabase.from('profiles').update(data).eq('id', userId);
       if (error) return wrap(null, error.message);
       return wrap(null);
@@ -525,7 +530,13 @@ const supabaseApi = {
     // ---- 更新成员 ----
     const memberMatch = url.match(/^\/admin\/members\/([^/]+)$/);
     if (memberMatch) {
-      const { error } = await supabase.from('profiles').update(data).eq('id', memberMatch[1]);
+      const memberId = memberMatch[1];
+      // 如果修改的是自己的邮箱，同时更新 Auth 登录邮箱
+      if (data?.email && memberId === userId) {
+        const { error: authError } = await supabase.auth.updateUser({ email: data.email });
+        if (authError) return wrap(null, `Auth邮箱更新失败: ${authError.message}`);
+      }
+      const { error } = await supabase.from('profiles').update(data).eq('id', memberId);
       if (error) return wrap(null, error.message);
       return wrap(null);
     }
