@@ -14,10 +14,11 @@ import {
   Select,
   Space,
 } from 'antd';
-import { PlusOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, EyeOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import api from '../../services/supabaseApi';
+import { useAuth } from '../../contexts/AuthContext';
 import type { Project } from '../../types';
 
 interface ModificationRequest {
@@ -31,6 +32,8 @@ interface ModificationRequest {
 
 export default function ProjectList() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -109,6 +112,31 @@ export default function ProjectList() {
     setFilterStatus(undefined);
     setFilterStage(undefined);
     setPage(1);
+  };
+
+  const handleDelete = (record: Project) => {
+    Modal.confirm({
+      title: '确认删除项目',
+      content: (
+        <div>
+          <p>确定要删除项目 <strong>"{record.project_name}"</strong> 吗？</p>
+          <p style={{ color: '#ff4d4f' }}>删除后，该项目下的所有模块数据（合同、付款、报销、结题等）将全部被清除，此操作不可恢复！</p>
+        </div>
+      ),
+      okText: '确认删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await api.delete(`/projects/${record.id}`);
+          message.success('项目删除成功');
+          fetchProjects();
+        } catch (error: any) {
+          const errMsg = error?.response?.data?.error || error?.message || '删除失败';
+          message.error(errMsg);
+        }
+      },
+    });
   };
 
   // 搜索栏是否显示（待审批 tab 不显示）
@@ -193,13 +221,25 @@ export default function ProjectList() {
       title: '操作',
       key: 'action',
       render: (_: unknown, record: Project) => (
-        <Button
-          type="link"
-          icon={<EyeOutlined />}
-          onClick={() => navigate(`/projects/${record.id}`)}
-        >
-          查看详情
-        </Button>
+        <Space>
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={() => navigate(`/projects/${record.id}`)}
+          >
+            查看详情
+          </Button>
+          {isAdmin && (
+            <Button
+              type="link"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record)}
+            >
+              删除
+            </Button>
+          )}
+        </Space>
       ),
     },
   ];

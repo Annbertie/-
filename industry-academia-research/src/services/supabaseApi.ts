@@ -585,6 +585,14 @@ const supabaseApi = {
   },
 
   async delete(url: string) {
+    // ---- 删除项目（级联删除所有关联模块数据）----
+    const projectMatch = url.match(/^\/projects\/([^/]+)$/);
+    if (projectMatch) {
+      const { error } = await supabase.from('projects').delete().eq('id', projectMatch[1]);
+      if (error) return wrap(null, error.message);
+      return wrap(null);
+    }
+
     // ---- 删除成员（禁用用户）----
     const memberMatch = url.match(/^\/admin\/members\/([^/]+)$/);
     if (memberMatch) {
