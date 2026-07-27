@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Table, List, Typography, Tag, Spin, Space, Tabs, Input, Button } from 'antd';
+import { Card, Row, Col, Statistic, Table, List, Typography, Tag, Spin, Space, Tabs, Input, Button, Modal } from 'antd';
 import {
   ProjectOutlined,
   CheckCircleOutlined,
@@ -34,6 +34,7 @@ const Dashboard: React.FC = () => {
   const [dashStage, setDashStage] = useState<string | undefined>(undefined);
   const [dashTotal, setDashTotal] = useState(0);
   const [searching, setSearching] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -273,10 +274,18 @@ const Dashboard: React.FC = () => {
           >
             <List
               dataSource={announcements}
+              locale={{ emptyText: '暂无公告' }}
               renderItem={(item) => (
-                <List.Item>
+                <List.Item
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setSelectedAnnouncement(item)}
+                >
                   <List.Item.Meta
-                    title={<Text strong>{item.title}</Text>}
+                    title={
+                      <Text strong style={{ color: '#1677ff' }}>
+                        {item.title}
+                      </Text>
+                    }
                     description={
                       <Text type="secondary" style={{ fontSize: 12 }}>
                         {dayjs(item.created_at || item.publish_date).format('YYYY-MM-DD')}
@@ -289,6 +298,36 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
       </Row>
+
+      <Modal
+        title={selectedAnnouncement?.title}
+        open={!!selectedAnnouncement}
+        onCancel={() => setSelectedAnnouncement(null)}
+        footer={[
+          <Button key="close" onClick={() => setSelectedAnnouncement(null)}>
+            关闭
+          </Button>,
+        ]}
+        width={600}
+      >
+        {selectedAnnouncement && (
+          <div>
+            <div style={{ marginBottom: 16, color: '#666', fontSize: 13 }}>
+              <Space>
+                <Text type="secondary">发布时间：{dayjs(selectedAnnouncement.created_at).format('YYYY-MM-DD HH:mm')}</Text>
+              </Space>
+            </div>
+            <div style={{
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              lineHeight: 1.8,
+              fontSize: 14,
+            }}>
+              {selectedAnnouncement.content}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
