@@ -11,7 +11,7 @@ import {
   message,
   Tabs,
 } from 'antd';
-import { PlusOutlined, CheckOutlined, MessageOutlined } from '@ant-design/icons';
+import { PlusOutlined, CheckOutlined, MessageOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import api from '../../services/supabaseApi';
 import type { Feedback, Announcement } from '../../types';
@@ -73,6 +73,30 @@ export default function AdminNotifications() {
     } finally {
       setAnnouncing(false);
     }
+  };
+
+  const handleDeleteAnnouncement = (record: Announcement) => {
+    Modal.confirm({
+      title: '确认删除公告',
+      content: (
+        <div>
+          <p>确定要删除公告 <strong>"{record.title}"</strong> 吗？此操作不可恢复。</p>
+        </div>
+      ),
+      okText: '确认删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await api.delete(`/admin/announcements/${record.id}`);
+          message.success('公告删除成功');
+          fetchAnnouncements();
+        } catch (error: any) {
+          const errMsg = error?.response?.data?.error || error?.message || '删除失败';
+          message.error(errMsg);
+        }
+      },
+    });
   };
 
   const openReply = (feedback: Feedback) => {
@@ -174,6 +198,20 @@ export default function AdminNotifications() {
       dataIndex: 'created_at',
       key: 'created_at',
       render: (d: string) => (d ? dayjs(d).format('YYYY-MM-DD HH:mm') : '-'),
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (_: unknown, record: Announcement) => (
+        <Button
+          type="link"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => handleDeleteAnnouncement(record)}
+        >
+          删除
+        </Button>
+      ),
     },
   ];
 

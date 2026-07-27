@@ -593,6 +593,14 @@ const supabaseApi = {
       return wrap(null);
     }
 
+    // ---- 删除公告 ----
+    const announceMatch = url.match(/^\/admin\/announcements\/([^/]+)$/);
+    if (announceMatch) {
+      const { error } = await supabase.from('announcements').delete().eq('id', announceMatch[1]);
+      if (error) return wrap(null, error.message);
+      return wrap(null);
+    }
+
     // ---- 删除成员（禁用用户）----
     const memberMatch = url.match(/^\/admin\/members\/([^/]+)$/);
     if (memberMatch) {
